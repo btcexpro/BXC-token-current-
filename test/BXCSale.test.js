@@ -989,4 +989,57 @@ contract('BXCSale' , (accounts) => {
 	// 	var isHardCapReached = await bxcSaleInstance.isHardCapReached.call();
 	// 	isHardCapReached.should.be.equal(true);
 	// });
+
+	it('should be able to reach sale end', async () => {
+		var account = accounts[10];
+		var round = await getRound(0);
+		
+		var maxTokenForSale = await bxcSaleInstance.maxTokenForSale.call();
+		var price = maxTokenForSale.mul(round.pricePerToken).div(1E18);
+
+		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+		totalTokenSold.should.be.bignumber.eq(0);
+
+		var round = await getRound(0);
+		round.totalTokenSold.should.be.bignumber.eq(0);
+
+		var isSaleEnded = await bxcSaleInstance.isSaleEnded.call();
+		isSaleEnded.should.be.eq(false);
+
+		var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+		var acctBalanceBefore = await bxcInstance.balanceOf.call(account);
+		
+		await TimeHelper.setBlockTime(round.startingTimestamp);
+		await bxcSaleInstance.buy(account, {from: account , value: price});
+
+		var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+		var acctBalanceAfter = await bxcInstance.balanceOf.call(account);
+
+		saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale);
+		saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(maxTokenForSale));
+
+		acctBalanceBefore.should.be.bignumber.equal(0);
+		acctBalanceAfter.should.be.bignumber.equal(maxTokenForSale);
+
+		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+		totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+		
+		var round = await getRound(0);
+		round.totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+
+		var isSaleEnded = await bxcSaleInstance.isSaleEnded.call();
+		isSaleEnded.should.be.eq(false);
+
+		var round = await getRound(5);
+		await TimeHelper.setBlockTime(round.endingTimestamp);
+
+		var isSaleEnded = await bxcSaleInstance.isSaleEnded.call();
+		isSaleEnded.should.be.eq(false);
+
+		var round = await getRound(5);
+		await TimeHelper.setBlockTime(round.endingTimestamp.add(100));
+
+		var isSaleEnded = await bxcSaleInstance.isSaleEnded.call();
+		isSaleEnded.should.be.eq(true);
+	});
 });
