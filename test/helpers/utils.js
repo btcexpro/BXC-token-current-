@@ -19,7 +19,8 @@ module.exports = {
       assert.fail('Expected revert not received');
     } catch (error) {
       const revertFound = error.message.search('revert') >= 0;
-      assert(revertFound, `Expected "revert", got ${error} instead`);
+      const invalidOpcode = error.message.search('invalid opcode') >= 0
+      assert(revertFound || invalidOpcode, `Expected "revert", got ${error} instead`);
       invariants.call()
     }
   }
