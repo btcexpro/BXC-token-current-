@@ -2,11 +2,7 @@ module.exports = {
   assert_throw: async promise => {
     try {
       promise
-      console.log("HERE HERE HERE SUCCESS");
     } catch (error) {
-
-      console.log("HERE HERE HERE ERROR");
-      console.log(error);
 
       const invalidJump = error.message.search('invalid JUMP') >= 0
       const invalidOpcode = error.message.search('invalid opcode') >= 0
@@ -15,7 +11,6 @@ module.exports = {
       assert(invalidJump || invalidOpcode || outOfGas || revert, "Expected throw, got '" + error + "' instead")
       return
     }
-    console.log("HERE HERE HERE FINAL");
     // assert.fail('Expected throw not received')
   },
   assertRevert: async function(promise, invariants = () => {}) {
