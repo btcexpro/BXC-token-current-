@@ -1031,7 +1031,7 @@ contract('BXCSale' , (accounts) => {
 		isSaleEnded.should.be.eq(false);
 
 		var round = await getRound(5);
-		await TimeHelper.setBlockTime(round.endingTimestamp);
+		await TimeHelper.setBlockTime(round.endingTimestamp.sub(100));
 
 		var isSaleEnded = await bxcSaleInstance.isSaleEnded.call();
 		isSaleEnded.should.be.eq(false);
