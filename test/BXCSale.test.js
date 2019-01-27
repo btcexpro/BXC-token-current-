@@ -246,283 +246,550 @@ contract('BXCSale' , (accounts) => {
 	// 	walletBalanceAfter.should.be.bignumber.equal(walletBalanceBefore.add(saleBalanceBefore));
 	// });
 
-	it('should be able to buy in phases', async () => {
-		var account1 = accounts[10];
-
-		var maxTokenForSale = await bxcSaleInstance.maxTokenForSale.call();
-		var saleBalance = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
-		maxTokenForSale.should.be.bignumber.equal(saleBalance);
-
-		
-		var round0 = await getRound(0);
-		round0.totalTokenSold.should.be.bignumber.equal(0);
-
-		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
-		totalTokenSold.should.be.bignumber.equal(0);
-
-		var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
-		var acctBalanceBefore = await bxcInstance.balanceOf.call(account1);
-			
-		var token0 = new BigNumber(1000E18);
-		var price0 = round0.pricePerToken.mul(token0).div(1E18);
-		await TimeHelper.setBlockTime(round0.startingTimestamp);
-		await bxcSaleInstance.buy(account1 , {from: account1 , value: price0});
-
-		var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
-		var acctBalanceAfter = await bxcInstance.balanceOf.call(account1);
-
-		saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale);
-		saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(token0));
-
-		acctBalanceBefore.should.be.bignumber.equal(0);
-		acctBalanceAfter.should.be.bignumber.equal(token0);
-
-		
-		
-		var round1 = await getRound(1);
-		round1.totalTokenSold.should.be.bignumber.equal(0);
-
-		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
-		totalTokenSold.should.be.bignumber.equal(token0);
-
-		var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
-		var acctBalanceBefore = await bxcInstance.balanceOf.call(account1);
-		
-		var token1 = new BigNumber(1000E18);		
-		var price1 = round1.pricePerToken.mul(token1).div(1E18);	
-		await TimeHelper.setBlockTime(round1.startingTimestamp);
-		await bxcSaleInstance.buy(account1 , {from: account1 , value: price1});
-
-		var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
-		var acctBalanceAfter = await bxcInstance.balanceOf.call(account1);
-
-		saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale.sub(token0));
-		saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1));
-
-		acctBalanceBefore.should.be.bignumber.equal(token0);
-		acctBalanceAfter.should.be.bignumber.equal(token0.add(token1));
-
-		var round0 = await getRound(0);
-		round0.totalTokenSold.should.be.bignumber.equal(token0);
-
-		var round1 = await getRound(1);
-		round1.totalTokenSold.should.be.bignumber.equal(token1);
-
-		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
-		totalTokenSold.should.be.bignumber.equal(token0.add(token1));
-
-
-
-		var round2 = await getRound(2);
-		round2.totalTokenSold.should.be.bignumber.equal(0);
-
-		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
-		totalTokenSold.should.be.bignumber.equal(token0.add(token1));
-
-		var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
-		var acctBalanceBefore = await bxcInstance.balanceOf.call(account1);
-		
-		var token2 = new BigNumber(1000E18);		
-		var price2 = round2.pricePerToken.mul(token2).div(1E18);	
-		await TimeHelper.setBlockTime(round2.startingTimestamp);
-		await bxcSaleInstance.buy(account1 , {from: account1 , value: price2});
-
-		var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
-		var acctBalanceAfter = await bxcInstance.balanceOf.call(account1);
-
-		saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1));
-		saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1).sub(token2));
-
-		acctBalanceBefore.should.be.bignumber.equal(token0.add(token1));
-		acctBalanceAfter.should.be.bignumber.equal(token0.add(token1).add(token2));
-
-		var round0 = await getRound(0);
-		round0.totalTokenSold.should.be.bignumber.equal(token0);
-
-		var round1 = await getRound(1);
-		round1.totalTokenSold.should.be.bignumber.equal(token1);
-
-		var round2 = await getRound(2);
-		round2.totalTokenSold.should.be.bignumber.equal(token2);
-
-		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
-		totalTokenSold.should.be.bignumber.equal(token0.add(token1).add(token2));
-
-
-
-		var round3 = await getRound(3);
-		round3.totalTokenSold.should.be.bignumber.equal(0);
-
-		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
-		totalTokenSold.should.be.bignumber.equal(token0.add(token1).add(token2));
-
-		var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
-		var acctBalanceBefore = await bxcInstance.balanceOf.call(account1);
-		
-		var token3 = new BigNumber(1000E18);		
-		var price3 = round3.pricePerToken.mul(token3).div(1E18);	
-		await TimeHelper.setBlockTime(round3.startingTimestamp);
-		await bxcSaleInstance.buy(account1 , {from: account1 , value: price3});
-
-		var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
-		var acctBalanceAfter = await bxcInstance.balanceOf.call(account1);
-
-		saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1).sub(token2));
-		saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1).sub(token2).sub(token3));
-
-		acctBalanceBefore.should.be.bignumber.equal(token0.add(token1).add(token2));
-		acctBalanceAfter.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3));
-
-		var round0 = await getRound(0);
-		round0.totalTokenSold.should.be.bignumber.equal(token0);
-
-		var round1 = await getRound(1);
-		round1.totalTokenSold.should.be.bignumber.equal(token1);
-
-		var round2 = await getRound(2);
-		round2.totalTokenSold.should.be.bignumber.equal(token2);
-
-		var round3 = await getRound(3);
-		round3.totalTokenSold.should.be.bignumber.equal(token3);
-
-		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
-		totalTokenSold.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3));
-
-
-
-		var round4 = await getRound(4);
-		round4.totalTokenSold.should.be.bignumber.equal(0);
-
-		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
-		totalTokenSold.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3));
-
-		var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
-		var acctBalanceBefore = await bxcInstance.balanceOf.call(account1);
-		
-		var token4 = new BigNumber(1000E18);		
-		var price4 = round4.pricePerToken.mul(token4).div(1E18);	
-		await TimeHelper.setBlockTime(round4.startingTimestamp);
-		await bxcSaleInstance.buy(account1 , {from: account1 , value: price4});
-
-		var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
-		var acctBalanceAfter = await bxcInstance.balanceOf.call(account1);
-
-		saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1).sub(token2).sub(token3));
-		saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1).sub(token2).sub(token3).sub(token4));
-
-		acctBalanceBefore.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3));
-		acctBalanceAfter.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3).add(token4));
-
-		var round0 = await getRound(0);
-		round0.totalTokenSold.should.be.bignumber.equal(token0);
-
-		var round1 = await getRound(1);
-		round1.totalTokenSold.should.be.bignumber.equal(token1);
-
-		var round2 = await getRound(2);
-		round2.totalTokenSold.should.be.bignumber.equal(token2);
-
-		var round3 = await getRound(3);
-		round3.totalTokenSold.should.be.bignumber.equal(token3);
-
-		var round4 = await getRound(4);
-		round4.totalTokenSold.should.be.bignumber.equal(token4);
-
-		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
-		totalTokenSold.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3).add(token4));
-
-
-
-		var round5 = await getRound(5);
-		round5.totalTokenSold.should.be.bignumber.equal(0);
-
-		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
-		totalTokenSold.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3).add(token4));
-
-		var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
-		var acctBalanceBefore = await bxcInstance.balanceOf.call(account1);
-		
-		var token5 = new BigNumber(1000E18);		
-		var price5 = round5.pricePerToken.mul(token5).div(1E18);	
-		await TimeHelper.setBlockTime(round5.startingTimestamp);
-		await bxcSaleInstance.buy(account1 , {from: account1 , value: price5});
-
-		var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
-		var acctBalanceAfter = await bxcInstance.balanceOf.call(account1);
-
-		saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1).sub(token2).sub(token3).sub(token4));
-		saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1).sub(token2).sub(token3).sub(token4).sub(token5));
-
-		acctBalanceBefore.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3).add(token4));
-		acctBalanceAfter.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3).add(token4).add(token5));
-
-		var round0 = await getRound(0);
-		round0.totalTokenSold.should.be.bignumber.equal(token0);
-
-		var round1 = await getRound(1);
-		round1.totalTokenSold.should.be.bignumber.equal(token1);
-
-		var round2 = await getRound(2);
-		round2.totalTokenSold.should.be.bignumber.equal(token2);
-
-		var round3 = await getRound(3);
-		round3.totalTokenSold.should.be.bignumber.equal(token3);
-
-		var round4 = await getRound(4);
-		round4.totalTokenSold.should.be.bignumber.equal(token4);
-
-		var round5 = await getRound(5);
-		round5.totalTokenSold.should.be.bignumber.equal(token5);
-
-		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
-		totalTokenSold.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3).add(token4).add(token5));
-
-		await Utils.assert_throw(getRound(6));		
-	});
-
-	// it('should be able to buy all tokens', async () => {
+	// it('should be able to buy in phases', async () => {
 	// 	var account1 = accounts[10];
 
-	// 	var round0 = await getRound(0);
-	// 	await TimeHelper.setBlockTime(round0.startingTimestamp);
 	// 	var maxTokenForSale = await bxcSaleInstance.maxTokenForSale.call();
-
-	// 	var round0 = await getRound(0);
-	// 	var round0Price = round0.maxTokenForSale.mul(round0.pricePerToken).div(1E18);
-
-	// 	var round1 = await getRound(1);
-	// 	var round1Price = round1.maxTokenForSale.mul(round1.pricePerToken).div(1E18);
+	// 	var saleBalance = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	maxTokenForSale.should.be.bignumber.equal(saleBalance);
 
 		
+	// 	var round0 = await getRound(0);
+	// 	round0.totalTokenSold.should.be.bignumber.equal(0);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.equal(0);
+
 	// 	var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
 	// 	var acctBalanceBefore = await bxcInstance.balanceOf.call(account1);
-		
+			
+	// 	var token0 = new BigNumber(1000E18);
+	// 	var price0 = round0.pricePerToken.mul(token0).div(1E18);
 	// 	await TimeHelper.setBlockTime(round0.startingTimestamp);
-	// 	await bxcSaleInstance.buy(account1 , {from: account1 , value: round0Price});
+	// 	await bxcSaleInstance.buy(account1 , {from: account1 , value: price0});
 
 	// 	var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
 	// 	var acctBalanceAfter = await bxcInstance.balanceOf.call(account1);
 
 	// 	saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale);
-	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(round0.maxTokenForSale));
+	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(token0));
 
 	// 	acctBalanceBefore.should.be.bignumber.equal(0);
-	// 	acctBalanceAfter.should.be.bignumber.equal(round0.maxTokenForSale);
+	// 	acctBalanceAfter.should.be.bignumber.equal(token0);
 
+		
+		
+	// 	var round1 = await getRound(1);
+	// 	round1.totalTokenSold.should.be.bignumber.equal(0);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.equal(token0);
 
 	// 	var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
 	// 	var acctBalanceBefore = await bxcInstance.balanceOf.call(account1);
 		
+	// 	var token1 = new BigNumber(1000E18);		
+	// 	var price1 = round1.pricePerToken.mul(token1).div(1E18);	
 	// 	await TimeHelper.setBlockTime(round1.startingTimestamp);
-	// 	await bxcSaleInstance.buy(account1 , {from: account1 , value: round1Price});
+	// 	await bxcSaleInstance.buy(account1 , {from: account1 , value: price1});
 
 	// 	var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
 	// 	var acctBalanceAfter = await bxcInstance.balanceOf.call(account1);
 
-	// 	saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale.sub(round0.maxTokenForSale));
-	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(round0.maxTokenForSale).sub(round1.maxTokenForSale));
+	// 	saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale.sub(token0));
+	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1));
 
-	// 	acctBalanceBefore.should.be.bignumber.equal(round0.maxTokenForSale);
-	// 	acctBalanceAfter.should.be.bignumber.equal(round0.maxTokenForSale.add(round1.maxTokenForSale));
+	// 	acctBalanceBefore.should.be.bignumber.equal(token0);
+	// 	acctBalanceAfter.should.be.bignumber.equal(token0.add(token1));
+
+	// 	var round0 = await getRound(0);
+	// 	round0.totalTokenSold.should.be.bignumber.equal(token0);
+
+	// 	var round1 = await getRound(1);
+	// 	round1.totalTokenSold.should.be.bignumber.equal(token1);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.equal(token0.add(token1));
+
+
+
+	// 	var round2 = await getRound(2);
+	// 	round2.totalTokenSold.should.be.bignumber.equal(0);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.equal(token0.add(token1));
+
+	// 	var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceBefore = await bxcInstance.balanceOf.call(account1);
+		
+	// 	var token2 = new BigNumber(1000E18);		
+	// 	var price2 = round2.pricePerToken.mul(token2).div(1E18);	
+	// 	await TimeHelper.setBlockTime(round2.startingTimestamp);
+	// 	await bxcSaleInstance.buy(account1 , {from: account1 , value: price2});
+
+	// 	var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceAfter = await bxcInstance.balanceOf.call(account1);
+
+	// 	saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1));
+	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1).sub(token2));
+
+	// 	acctBalanceBefore.should.be.bignumber.equal(token0.add(token1));
+	// 	acctBalanceAfter.should.be.bignumber.equal(token0.add(token1).add(token2));
+
+	// 	var round0 = await getRound(0);
+	// 	round0.totalTokenSold.should.be.bignumber.equal(token0);
+
+	// 	var round1 = await getRound(1);
+	// 	round1.totalTokenSold.should.be.bignumber.equal(token1);
+
+	// 	var round2 = await getRound(2);
+	// 	round2.totalTokenSold.should.be.bignumber.equal(token2);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.equal(token0.add(token1).add(token2));
+
+
+
+	// 	var round3 = await getRound(3);
+	// 	round3.totalTokenSold.should.be.bignumber.equal(0);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.equal(token0.add(token1).add(token2));
+
+	// 	var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceBefore = await bxcInstance.balanceOf.call(account1);
+		
+	// 	var token3 = new BigNumber(1000E18);		
+	// 	var price3 = round3.pricePerToken.mul(token3).div(1E18);	
+	// 	await TimeHelper.setBlockTime(round3.startingTimestamp);
+	// 	await bxcSaleInstance.buy(account1 , {from: account1 , value: price3});
+
+	// 	var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceAfter = await bxcInstance.balanceOf.call(account1);
+
+	// 	saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1).sub(token2));
+	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1).sub(token2).sub(token3));
+
+	// 	acctBalanceBefore.should.be.bignumber.equal(token0.add(token1).add(token2));
+	// 	acctBalanceAfter.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3));
+
+	// 	var round0 = await getRound(0);
+	// 	round0.totalTokenSold.should.be.bignumber.equal(token0);
+
+	// 	var round1 = await getRound(1);
+	// 	round1.totalTokenSold.should.be.bignumber.equal(token1);
+
+	// 	var round2 = await getRound(2);
+	// 	round2.totalTokenSold.should.be.bignumber.equal(token2);
+
+	// 	var round3 = await getRound(3);
+	// 	round3.totalTokenSold.should.be.bignumber.equal(token3);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3));
+
+
+
+	// 	var round4 = await getRound(4);
+	// 	round4.totalTokenSold.should.be.bignumber.equal(0);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3));
+
+	// 	var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceBefore = await bxcInstance.balanceOf.call(account1);
+		
+	// 	var token4 = new BigNumber(1000E18);		
+	// 	var price4 = round4.pricePerToken.mul(token4).div(1E18);	
+	// 	await TimeHelper.setBlockTime(round4.startingTimestamp);
+	// 	await bxcSaleInstance.buy(account1 , {from: account1 , value: price4});
+
+	// 	var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceAfter = await bxcInstance.balanceOf.call(account1);
+
+	// 	saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1).sub(token2).sub(token3));
+	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1).sub(token2).sub(token3).sub(token4));
+
+	// 	acctBalanceBefore.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3));
+	// 	acctBalanceAfter.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3).add(token4));
+
+	// 	var round0 = await getRound(0);
+	// 	round0.totalTokenSold.should.be.bignumber.equal(token0);
+
+	// 	var round1 = await getRound(1);
+	// 	round1.totalTokenSold.should.be.bignumber.equal(token1);
+
+	// 	var round2 = await getRound(2);
+	// 	round2.totalTokenSold.should.be.bignumber.equal(token2);
+
+	// 	var round3 = await getRound(3);
+	// 	round3.totalTokenSold.should.be.bignumber.equal(token3);
+
+	// 	var round4 = await getRound(4);
+	// 	round4.totalTokenSold.should.be.bignumber.equal(token4);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3).add(token4));
+
+
+
+	// 	var round5 = await getRound(5);
+	// 	round5.totalTokenSold.should.be.bignumber.equal(0);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3).add(token4));
+
+	// 	var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceBefore = await bxcInstance.balanceOf.call(account1);
+		
+	// 	var token5 = new BigNumber(1000E18);		
+	// 	var price5 = round5.pricePerToken.mul(token5).div(1E18);	
+	// 	await TimeHelper.setBlockTime(round5.startingTimestamp);
+	// 	await bxcSaleInstance.buy(account1 , {from: account1 , value: price5});
+
+	// 	var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceAfter = await bxcInstance.balanceOf.call(account1);
+
+	// 	saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1).sub(token2).sub(token3).sub(token4));
+	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(token0).sub(token1).sub(token2).sub(token3).sub(token4).sub(token5));
+
+	// 	acctBalanceBefore.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3).add(token4));
+	// 	acctBalanceAfter.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3).add(token4).add(token5));
+
+	// 	var round0 = await getRound(0);
+	// 	round0.totalTokenSold.should.be.bignumber.equal(token0);
+
+	// 	var round1 = await getRound(1);
+	// 	round1.totalTokenSold.should.be.bignumber.equal(token1);
+
+	// 	var round2 = await getRound(2);
+	// 	round2.totalTokenSold.should.be.bignumber.equal(token2);
+
+	// 	var round3 = await getRound(3);
+	// 	round3.totalTokenSold.should.be.bignumber.equal(token3);
+
+	// 	var round4 = await getRound(4);
+	// 	round4.totalTokenSold.should.be.bignumber.equal(token4);
+
+	// 	var round5 = await getRound(5);
+	// 	round5.totalTokenSold.should.be.bignumber.equal(token5);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.equal(token0.add(token1).add(token2).add(token3).add(token4).add(token5));
+
+	// 	await Utils.assertRevert(getRound(6));		
 	// });
+
+	// it('should be able to buy all tokens in round 0', async () => {
+	// 	var account = accounts[10];
+	// 	var round = await getRound(0);
+		
+	// 	var maxTokenForSale = await bxcSaleInstance.maxTokenForSale.call();
+	// 	var price = maxTokenForSale.mul(round.pricePerToken).div(1E18);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.eq(0);
+
+	// 	var round = await getRound(0);
+	// 	round.totalTokenSold.should.be.bignumber.eq(0);
+
+	// 	var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceBefore = await bxcInstance.balanceOf.call(account);
+		
+	// 	await TimeHelper.setBlockTime(round.startingTimestamp);
+	// 	await bxcSaleInstance.buy(account, {from: account , value: price});
+
+	// 	var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceAfter = await bxcInstance.balanceOf.call(account);
+
+	// 	saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale);
+	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(maxTokenForSale));
+
+	// 	acctBalanceBefore.should.be.bignumber.equal(0);
+	// 	acctBalanceAfter.should.be.bignumber.equal(maxTokenForSale);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+		
+	// 	var round = await getRound(0);
+	// 	round.totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+	// });
+
+	// it('should be able to buy all tokens in round 1', async () => {
+	// 	var account = accounts[10];
+	// 	var round = await getRound(1);
+		
+	// 	var maxTokenForSale = await bxcSaleInstance.maxTokenForSale.call();
+	// 	var price = maxTokenForSale.mul(round.pricePerToken).div(1E18);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.eq(0);
+		
+	// 	var round = await getRound(1);
+	// 	round.totalTokenSold.should.be.bignumber.eq(0);
+
+	// 	var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceBefore = await bxcInstance.balanceOf.call(account);
+		
+	// 	await TimeHelper.setBlockTime(round.startingTimestamp);
+	// 	await bxcSaleInstance.buy(account, {from: account , value: price});
+
+	// 	var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceAfter = await bxcInstance.balanceOf.call(account);
+
+	// 	saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale);
+	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(maxTokenForSale));
+
+	// 	acctBalanceBefore.should.be.bignumber.equal(0);
+	// 	acctBalanceAfter.should.be.bignumber.equal(maxTokenForSale);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+
+	// 	var round = await getRound(1);
+	// 	round.totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+	// });
+
+	// it('should be able to buy all tokens in round 2', async () => {
+	// 	var account = accounts[10];
+	// 	var round = await getRound(2);
+		
+	// 	var maxTokenForSale = await bxcSaleInstance.maxTokenForSale.call();
+	// 	var price = maxTokenForSale.mul(round.pricePerToken).div(1E18);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.eq(0);
+		
+	// 	var round = await getRound(2);
+	// 	round.totalTokenSold.should.be.bignumber.eq(0);
+
+	// 	var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceBefore = await bxcInstance.balanceOf.call(account);
+		
+	// 	await TimeHelper.setBlockTime(round.startingTimestamp);
+	// 	await bxcSaleInstance.buy(account, {from: account , value: price});
+
+	// 	var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceAfter = await bxcInstance.balanceOf.call(account);
+
+	// 	saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale);
+	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(maxTokenForSale));
+
+	// 	acctBalanceBefore.should.be.bignumber.equal(0);
+	// 	acctBalanceAfter.should.be.bignumber.equal(maxTokenForSale);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+
+	// 	var round = await getRound(2);
+	// 	round.totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+	// });
+
+	// it('should be able to buy all tokens in round 3', async () => {
+	// 	var account = accounts[10];
+	// 	var round = await getRound(3);
+		
+	// 	var maxTokenForSale = await bxcSaleInstance.maxTokenForSale.call();
+	// 	var price = maxTokenForSale.mul(round.pricePerToken).div(1E18);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.eq(0);
+		
+	// 	var round = await getRound(3);
+	// 	round.totalTokenSold.should.be.bignumber.eq(0);
+
+	// 	var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceBefore = await bxcInstance.balanceOf.call(account);
+		
+	// 	await TimeHelper.setBlockTime(round.startingTimestamp);
+	// 	await bxcSaleInstance.buy(account, {from: account , value: price});
+
+	// 	var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceAfter = await bxcInstance.balanceOf.call(account);
+
+	// 	saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale);
+	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(maxTokenForSale));
+
+	// 	acctBalanceBefore.should.be.bignumber.equal(0);
+	// 	acctBalanceAfter.should.be.bignumber.equal(maxTokenForSale);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+
+	// 	var round = await getRound(3);
+	// 	round.totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+	// });
+
+	// it('should be able to buy all tokens in round 4', async () => {
+	// 	var account = accounts[10];
+	// 	var round = await getRound(4);
+		
+	// 	var maxTokenForSale = await bxcSaleInstance.maxTokenForSale.call();
+	// 	var price = maxTokenForSale.mul(round.pricePerToken).div(1E18);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.eq(0);
+		
+	// 	var round = await getRound(4);
+	// 	round.totalTokenSold.should.be.bignumber.eq(0);
+
+	// 	var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceBefore = await bxcInstance.balanceOf.call(account);
+		
+	// 	await TimeHelper.setBlockTime(round.startingTimestamp);
+	// 	await bxcSaleInstance.buy(account, {from: account , value: price});
+
+	// 	var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceAfter = await bxcInstance.balanceOf.call(account);
+
+	// 	saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale);
+	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(maxTokenForSale));
+
+	// 	acctBalanceBefore.should.be.bignumber.equal(0);
+	// 	acctBalanceAfter.should.be.bignumber.equal(maxTokenForSale);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+
+	// 	var round = await getRound(4);
+	// 	round.totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+	// });
+
+	// it('should be able to buy all tokens in round 5', async () => {
+	// 	var account = accounts[10];
+	// 	var round = await getRound(5);
+		
+	// 	var maxTokenForSale = await bxcSaleInstance.maxTokenForSale.call();
+	// 	var price = maxTokenForSale.mul(round.pricePerToken).div(1E18);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.eq(0);
+		
+	// 	var round = await getRound(5);
+	// 	round.totalTokenSold.should.be.bignumber.eq(0);
+
+	// 	var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceBefore = await bxcInstance.balanceOf.call(account);
+		
+	// 	await TimeHelper.setBlockTime(round.startingTimestamp);
+	// 	await bxcSaleInstance.buy(account, {from: account , value: price});
+
+	// 	var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceAfter = await bxcInstance.balanceOf.call(account);
+
+	// 	saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale);
+	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(maxTokenForSale));
+
+	// 	acctBalanceBefore.should.be.bignumber.equal(0);
+	// 	acctBalanceAfter.should.be.bignumber.equal(maxTokenForSale);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+
+	// 	var round = await getRound(5);
+	// 	round.totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+	// });
+
+	// it('should not be able to buy all tokens in round 6', async () => {
+	// 	var account = accounts[10];
+	// 	var round = await getRound(5);
+		
+	// 	var maxTokenForSale = await bxcSaleInstance.maxTokenForSale.call();
+	// 	var price = maxTokenForSale.mul(round.pricePerToken).div(1E18);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.eq(0);
+		
+	// 	var round = await getRound(5);
+	// 	round.totalTokenSold.should.be.bignumber.eq(0);
+
+	// 	var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceBefore = await bxcInstance.balanceOf.call(account);
+		
+	// 	await TimeHelper.setBlockTime(round.endingTimestamp.add(100));
+	// 	await Utils.assertRevert(bxcSaleInstance.buy(account, {from: account , value: price}));
+
+	// 	var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+	// 	var acctBalanceAfter = await bxcInstance.balanceOf.call(account);
+
+	// 	saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale);
+	// 	saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale);
+
+	// 	acctBalanceBefore.should.be.bignumber.equal(0);
+	// 	acctBalanceAfter.should.be.bignumber.equal(0);
+
+	// 	var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+	// 	totalTokenSold.should.be.bignumber.eq(0);
+
+	// 	var round = await getRound(5);
+	// 	round.totalTokenSold.should.be.bignumber.eq(0);
+	// });
+
+	it('should be able to buy all tokens in round 0 and 1', async () => {
+		var account = accounts[10];
+		var round0 = await getRound(0);
+
+		var maxTokenForSale = await bxcSaleInstance.maxTokenForSale.call();
+		var price = maxTokenForSale.div(2).mul(round0.pricePerToken).div(1E18);
+
+		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+		totalTokenSold.should.be.bignumber.eq(0);
+
+		var round0 = await getRound(0);
+		round0.totalTokenSold.should.be.bignumber.eq(0);
+
+		var round1 = await getRound(1);
+		round1.totalTokenSold.should.be.bignumber.eq(0);
+
+		var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+		var acctBalanceBefore = await bxcInstance.balanceOf.call(account);
+		
+		await TimeHelper.setBlockTime(round0.startingTimestamp);
+		await bxcSaleInstance.buy(account, {from: account , value: price});
+
+		var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+		var acctBalanceAfter = await bxcInstance.balanceOf.call(account);
+
+		saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale);
+		saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(maxTokenForSale.div(2)));
+
+		acctBalanceBefore.should.be.bignumber.equal(0);
+		acctBalanceAfter.should.be.bignumber.equal(maxTokenForSale.div(2));
+
+		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+		totalTokenSold.should.be.bignumber.eq(maxTokenForSale.div(2));
+		
+		var round0 = await getRound(0);
+		round0.totalTokenSold.should.be.bignumber.eq(maxTokenForSale.div(2));
+
+		var round1 = await getRound(1);
+		round1.totalTokenSold.should.be.bignumber.eq(0);
+
+		var saleBalanceBefore = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+		var acctBalanceBefore = await bxcInstance.balanceOf.call(account);
+
+		var maxTokenForSale = await bxcSaleInstance.maxTokenForSale.call();
+		var price = maxTokenForSale.div(2).mul(round1.pricePerToken).div(1E18);
+		
+		await TimeHelper.setBlockTime(round1.startingTimestamp);
+		await bxcSaleInstance.buy(account, {from: account , value: price});
+
+		var saleBalanceAfter = await bxcInstance.balanceOf.call(bxcSaleInstance.address);
+		var acctBalanceAfter = await bxcInstance.balanceOf.call(account);
+
+		saleBalanceBefore.should.be.bignumber.equal(maxTokenForSale.sub(maxTokenForSale.div(2)));
+		saleBalanceAfter.should.be.bignumber.equal(maxTokenForSale.sub(maxTokenForSale));
+
+		acctBalanceBefore.should.be.bignumber.equal(maxTokenForSale.div(2));
+		acctBalanceAfter.should.be.bignumber.equal(maxTokenForSale);
+
+		var totalTokenSold = await bxcSaleInstance.totalTokenSold.call();
+		totalTokenSold.should.be.bignumber.eq(maxTokenForSale);
+		
+		var round0 = await getRound(0);
+		round0.totalTokenSold.should.be.bignumber.eq(maxTokenForSale.div(2));
+
+		var round1 = await getRound(1);
+		round1.totalTokenSold.should.be.bignumber.eq(maxTokenForSale.div(2));
+	});
 });
