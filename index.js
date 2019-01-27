@@ -14,6 +14,8 @@ const deployer = require('./utils/deployer.js');
 
 async function setup() {
 	console.log("<< Deploy : Begin >>")
+
+	await deployer.setWeb3(web3);
 	const owner = nconf.get("owner")
 
 	await deployer.validate(network, owner);

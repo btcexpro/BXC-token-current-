@@ -2,7 +2,12 @@
 global.artifacts = artifacts;
 const nconf = require('nconf')
 const csvtojson = require('csvtojson')
-const BigNumber = require('bignumber.js');
+
+var BigNumber;
+async function setWeb3(web3) {
+	BigNumber = web3.BigNumber;
+	BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN });
+}
 
 async function validate(network, owner) {
 
@@ -11,6 +16,8 @@ async function validate(network, owner) {
 async function deploy(web3, accounts, saleStart) {
 	const network = 'test';
 	nconf.file({ file: `./config/config-${network}.json` });
+	
+	await setWeb3(web3)
 	const owner = nconf.get("owner")
 
 	const bxcInstance = await deployBXC(network)
@@ -210,6 +217,7 @@ async function getInitialBalances(network, bxcInstance, bxcSaleInstance, bxcTeam
 	return balances;
 }
 
+module.exports.setWeb3 = setWeb3;
 module.exports.validate = validate;
 module.exports.deploy = deploy;
 module.exports.deployBXC = deployBXC;
