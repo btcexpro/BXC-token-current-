@@ -103,7 +103,7 @@ contract BXCSale is Ownable {
 		maxTokenForSale = 30000000E18;
 		
 		// setup price units
-		pricePerToken = 25 * usdToEth;
+		pricePerToken = 25 * usdToEth / 100;
 
 		// live round
 		uint saleStart = _saleStart;
