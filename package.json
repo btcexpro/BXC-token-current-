@@ -1,0 +1,45 @@
+{
+	"name": "btcex-contracts",
+	"version": "1.0.0",
+	"description": "Cryptocurrency Exchange 3.0",
+	"main": "index.js",
+	"directories": {
+		"test": "test"
+	},
+	"scripts": {
+		"compile": "rm -rf build && npx truffle compile",
+		"start": "npm run deploy",
+		"deploy": "npm run compile && npx truffle exec index.js --network development",
+		"test": "npm run compile && NODE_ENV=test npx truffle test --network development"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ehussain/btcex-contracts.git"
+	},
+	"author": "Hussain C <hussain@araneux.com>",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/ehussain/btcex-contracts/issues"
+	},
+	"homepage": "https://github.com/ehussain/btcex-contracts#readme",
+	"dependencies": {
+		"bignumber.js": "^7.2.1",
+		"chai": "^4.1.2",
+		"chai-as-promised": "^7.1.1",
+		"chai-bignumber": "^2.0.2",
+		"csvtojson": "^2.0.8",
+		"ganache-cli": "^6.0.3",
+		"nconf": "^0.10.0",
+		"openzeppelin-solidity": "^1.12.0",
+		"truffle": "^4.1.15",
+		"truffle-hdwallet-provider": "0.0.6"
+	},
+	"devDependencies": {
+		"babel-polyfill": "^6.26.0",
+		"babel-preset-es2015": "^6.24.1",
+		"babel-preset-stage-2": "^6.24.1",
+		"babel-preset-stage-3": "^6.24.1",
+		"babel-register": "^6.26.0",
+		"openzeppelin-test-helpers": "^0.1.2"
+	}
+}
