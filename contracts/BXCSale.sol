@@ -253,15 +253,15 @@ contract BXCSale is Ownable {
 		uint amount; uint leftValue;
 		(amount, leftValue) = calculate(value);
 
+		// validate the purchase
+		require(validate(round, value , amount));
+
 		// if there is any left value then return 
 		if(leftValue > 0) {
 			value = value.sub(leftValue);
 			msg.sender.transfer(leftValue);
 		}
-
-		// validate the purchase
-		require(validate(round, value , amount));
-
+		
 		// update the state to log the sold tokens and raised ethers.
 		totalTokenSold = totalTokenSold.add(amount);
 		rounds[round].totalTokenSold = rounds[round].totalTokenSold.add(amount);
