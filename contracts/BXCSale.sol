@@ -87,7 +87,7 @@ contract BXCSale is Ownable {
 
 	RoundStruct[7] public rounds;
 
-	// cnt to eth
+	// usd to eth
 	uint public ethToUsd = 100;
 	uint public usdToEth = 1E18 / ethToUsd;
 	
@@ -143,8 +143,9 @@ contract BXCSale is Ownable {
 	* @dev set eth to usd
 	* set ether to usd pricing
 	*/	
-	function setEthToUsd(uint ethToUsd) onlyOwner public {
-		// cnt to eth
+	function setEthToUsd(uint _ethToUsd) onlyOwner public {
+		// usd to eth
+		ethToUsd = _ethToUsd;
 		usdToEth = 1E18 / ethToUsd;
 		
 		// hard cap in usd - 100%
@@ -179,7 +180,7 @@ contract BXCSale is Ownable {
 		// mark the flag to indicate closure of the contract
 		isSaleExtended = true;
 
-		uint day = 86400; 
+		// enable round
 		rounds[6].isRound = true;
 
 		// log event for sale extend

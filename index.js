@@ -20,7 +20,7 @@ async function setup() {
 
 	await deployer.validate(network, owner);
 	const bxcInstance = await deployer.deployBXC(network)
-	const bxcSaleInstance = await deployer.deployBXCSale(network, bxcInstance, 1549584000)
+	const bxcSaleInstance = await deployer.deployBXCSale(network, bxcInstance, 1548633600)
 	const bxcTeamVestingInstance = await deployer.deployBXCTeamVesting(network, bxcInstance)
 
 	await deployer.mintTokens(network, bxcInstance, owner)
