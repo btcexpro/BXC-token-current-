@@ -53,7 +53,7 @@ contract BXCSale is Ownable {
 	bool public isPaused = false;
 
 	// is sale extended
-	bool public isSaleExtended = true;
+	bool public isSaleExtended = false;
 		
 	// executor changed
 	event ExecutorChange(address _executor, uint _timestamp);
