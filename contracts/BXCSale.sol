@@ -19,6 +19,9 @@ contract BXCSale is Ownable {
 	// token
 	BXC public token;
 
+	// sale start date 
+	uint public saleStart;
+
 	// amount of token to be sold on sale
 	uint public maxTokenForSale;
 
@@ -48,6 +51,9 @@ contract BXCSale is Ownable {
 
 	// is contract paused
 	bool public isPaused = false;
+
+	// is sale extended
+	bool public isSaleExtended = true;
 		
 	// executor changed
 	event ExecutorChange(address _executor, uint _timestamp);
@@ -64,15 +70,19 @@ contract BXCSale is Ownable {
 	// manual transfer by admin for external purchase
 	event TransferManual(address indexed _from, address indexed _to, uint _value);
 
+	// dispatch event if sale is extended
+	event SaleExtend();
+
 	struct RoundStruct {
 		uint number;
 		uint startingTimestamp;
 		uint endingTimestamp;
 		uint totalTokenSold;
 		uint pricePerToken;
+		bool isRound;
 	}
 
-	RoundStruct[6] public rounds;
+	RoundStruct[7] public rounds;
 
 	// cnt to eth
 	uint public ethToUsd = 100;
@@ -106,15 +116,15 @@ contract BXCSale is Ownable {
 		pricePerToken = 25 * usdToEth / 100;
 
 		// live round
-		uint saleStart = _saleStart;
+		saleStart = _saleStart;
 		uint day = 86400; 
 
-		rounds[0] = RoundStruct(0, saleStart, 				saleStart + (day * 10) - 1, 0, pricePerToken - (pricePerToken * 200 / 1000));
-		rounds[1] = RoundStruct(1, saleStart + (day * 10), 	saleStart + (day * 20) - 1, 0, pricePerToken - (pricePerToken * 150 / 1000));
-		rounds[2] = RoundStruct(2, saleStart + (day * 20), 	saleStart + (day * 30) - 1, 0, pricePerToken - (pricePerToken * 100 / 1000));
-		rounds[3] = RoundStruct(3, saleStart + (day * 30), 	saleStart + (day * 40) - 1, 0, pricePerToken - (pricePerToken *  50 / 1000));
-		rounds[4] = RoundStruct(4, saleStart + (day * 40), 	saleStart + (day * 50) - 1, 0, pricePerToken - (pricePerToken *  25 / 1000));
-		rounds[5] = RoundStruct(5, saleStart + (day * 50), 	saleStart + (day * 60) - 1, 0, pricePerToken);
+		rounds[0] = RoundStruct(0, saleStart, 				saleStart + (day * 10) - 1, 0, pricePerToken - (pricePerToken * 200 / 1000), true);
+		rounds[1] = RoundStruct(1, saleStart + (day * 10), 	saleStart + (day * 20) - 1, 0, pricePerToken - (pricePerToken * 150 / 1000), true);
+		rounds[2] = RoundStruct(2, saleStart + (day * 20), 	saleStart + (day * 30) - 1, 0, pricePerToken - (pricePerToken * 100 / 1000), true);
+		rounds[3] = RoundStruct(3, saleStart + (day * 30), 	saleStart + (day * 40) - 1, 0, pricePerToken - (pricePerToken *  50 / 1000), true);
+		rounds[4] = RoundStruct(4, saleStart + (day * 40), 	saleStart + (day * 50) - 1, 0, pricePerToken - (pricePerToken *  25 / 1000), true);
+		rounds[5] = RoundStruct(5, saleStart + (day * 50), 	saleStart + (day * 60) - 1, 0, pricePerToken, true);
 	}
 
 	/**
@@ -123,6 +133,23 @@ contract BXCSale is Ownable {
 	modifier onlyExecutor() {
 		require(msg.sender == owner || msg.sender == executor);
 		_;
+	}
+
+	/**
+	* @dev extend sale 
+	* This will extend the sale if end of sale is reached and softcap is reached
+	*/	
+	function extendSale() onlyOwner public {
+		require(isSoftCapReached() && !isSaleExtended);
+
+		// mark the flag to indicate closure of the contract
+		isSaleExtended = true;
+
+		uint day = 86400; 
+		rounds[6] = RoundStruct(6, saleStart + (day * 60), 	saleStart + (day * 90) - 1, 0, pricePerToken, true);
+
+		// log event for sale extend
+		emit SaleExtend();
 	}
 
 	/**
@@ -145,7 +172,7 @@ contract BXCSale is Ownable {
 		bool validAmount = maxTokenForSale.sub(totalTokenSold) >= amount && amount > 0;
 
 		// validate if all conditions are met
-		return validTimestamp && validValue && validAmount && !isClose && !isPaused;
+		return rounds[round].isRound && validTimestamp && validValue && validAmount && !isClose && !isPaused;
 	}
 
 	/**
@@ -153,11 +180,12 @@ contract BXCSale is Ownable {
 	 *
 	 * @return returns the round properties
 	 */
-	function getRound(uint _number) public constant returns (uint _startingTimestamp, uint _endingTimestamp, uint _totalTokenSold, uint _pricePerToken) {
+	function getRound(uint _number) public constant returns (uint _startingTimestamp, uint _endingTimestamp, uint _totalTokenSold, uint _pricePerToken, bool _isRound) {
 		_startingTimestamp = rounds[_number].startingTimestamp;
 		_endingTimestamp = rounds[_number].endingTimestamp;
 		_totalTokenSold = rounds[_number].totalTokenSold;
 		_pricePerToken = rounds[_number].pricePerToken;
+		_isRound = rounds[_number].isRound;
 	}
 
 	/**
@@ -167,7 +195,7 @@ contract BXCSale is Ownable {
 	 */
 	function getCurrentRound() public constant returns (uint) {
 		for(uint i = 0 ; i < rounds.length ; i ++) {
-			if(rounds[i].startingTimestamp <= block.timestamp && block.timestamp <= rounds[i].endingTimestamp) {
+			if(rounds[i].startingTimestamp <= block.timestamp && block.timestamp <= rounds[i].endingTimestamp && rounds[i].isRound) {
 				return i;
 			}
 		}
@@ -367,7 +395,7 @@ contract BXCSale is Ownable {
 	* @dev checks if sale ended
 	*/	
 	function isSaleEnded() public view returns (bool) {
-		uint endingTimestamp = rounds[rounds.length - 1].endingTimestamp;
+		uint endingTimestamp = rounds[rounds.length - 1].isRound ? rounds[rounds.length - 1].endingTimestamp : rounds[rounds.length - 2].endingTimestamp;
 		return block.timestamp > endingTimestamp;
     }
 
