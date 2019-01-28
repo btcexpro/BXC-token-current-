@@ -166,7 +166,7 @@ contract BXCSale is Ownable {
 		bool validTimestamp = rounds[round].startingTimestamp <= block.timestamp && block.timestamp <= rounds[round].endingTimestamp;
 
 		// check if value of the ether is valid
-		bool validValue = value != 0;
+		bool validValue = 1E17 <= value && value <= 1000 ether;
 
 		// check if the tokens available in contract for sale
 		bool validAmount = maxTokenForSale.sub(totalTokenSold) >= amount && amount > 0;
@@ -292,7 +292,7 @@ contract BXCSale is Ownable {
 		uint round = getCurrentRound();
 
 		// validate the purchase. dummy value 1 passed to avoid check of amount
-		require(validate(round, 1 , amount));
+		require(validate(round, 1 ether , amount));
 
 		// update global variables
 		totalTokenSold = totalTokenSold.add(amount);

@@ -99,3 +99,15 @@ var addressToBytes = (address) => {
   return address.replace("0x", "");
 }
 module.exports.addressToBytes = addressToBytes;
+
+
+var chunkBy = (number, n) => {
+  var chunks = Array(Math.floor(number.div(n).toFixed())).fill(n);
+  var remainder = number.mod(n);
+  
+  if (remainder > 0) {
+    chunks.push(remainder);
+  }
+  return chunks;
+}
+module.exports.chunkBy = chunkBy;
