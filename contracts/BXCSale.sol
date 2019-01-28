@@ -73,6 +73,9 @@ contract BXCSale is Ownable {
 	// dispatch event if sale is extended
 	event SaleExtend();
 
+	// dispatch event if usd to eth is changed
+	event EthToUsdChange(uint ethToUsd);
+
 	struct RoundStruct {
 		uint number;
 		uint startingTimestamp;
@@ -125,6 +128,7 @@ contract BXCSale is Ownable {
 		rounds[3] = RoundStruct(3, saleStart + (day * 30), 	saleStart + (day * 40) - 1, 0, pricePerToken - (pricePerToken *  50 / 1000), true);
 		rounds[4] = RoundStruct(4, saleStart + (day * 40), 	saleStart + (day * 50) - 1, 0, pricePerToken - (pricePerToken *  25 / 1000), true);
 		rounds[5] = RoundStruct(5, saleStart + (day * 50), 	saleStart + (day * 60) - 1, 0, pricePerToken, true);
+		rounds[6] = RoundStruct(6, saleStart + (day * 60), 	saleStart + (day * 90) - 1, 0, pricePerToken, false);
 	}
 
 	/**
@@ -133,6 +137,36 @@ contract BXCSale is Ownable {
 	modifier onlyExecutor() {
 		require(msg.sender == owner || msg.sender == executor);
 		_;
+	}
+
+	/**
+	* @dev set eth to usd
+	* set ether to usd pricing
+	*/	
+	function setEthToUsd(uint ethToUsd) onlyOwner public {
+		// cnt to eth
+		usdToEth = 1E18 / ethToUsd;
+		
+		// hard cap in usd - 100%
+		hardCapEth = usdToEth * hardCapUsd;
+
+		// soft cap in usd - 80%
+		softCapEth = usdToEth * softCapUsd;
+
+		// setup price units
+		pricePerToken = 25 * usdToEth / 100;
+
+		// set price for each round
+		rounds[0].pricePerToken = pricePerToken - (pricePerToken * 200 / 1000);
+		rounds[1].pricePerToken = pricePerToken - (pricePerToken * 150 / 1000);
+		rounds[2].pricePerToken = pricePerToken - (pricePerToken * 100 / 1000);
+		rounds[3].pricePerToken = pricePerToken - (pricePerToken *  50 / 1000);
+		rounds[4].pricePerToken = pricePerToken - (pricePerToken *  25 / 1000);
+		rounds[5].pricePerToken = pricePerToken;
+		rounds[6].pricePerToken = pricePerToken;
+
+		// log event for price change
+		emit EthToUsdChange(ethToUsd);
 	}
 
 	/**
@@ -146,7 +180,7 @@ contract BXCSale is Ownable {
 		isSaleExtended = true;
 
 		uint day = 86400; 
-		rounds[6] = RoundStruct(6, saleStart + (day * 60), 	saleStart + (day * 90) - 1, 0, pricePerToken, true);
+		rounds[6].isRound = true;
 
 		// log event for sale extend
 		emit SaleExtend();
