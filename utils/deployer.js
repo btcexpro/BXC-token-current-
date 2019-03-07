@@ -4,8 +4,10 @@ const nconf = require('nconf')
 const csvtojson = require('csvtojson')
 
 var BigNumber;
-async function setWeb3(web3) {
-	BigNumber = web3.BigNumber;
+var web3;
+async function setWeb3(_web3) {
+	web3 = _web3
+	BigNumber = _web3.BigNumber;
 	BigNumber.config({ DECIMAL_PLACES: 18, ROUNDING_MODE: BigNumber.ROUND_DOWN });
 }
 
@@ -197,6 +199,35 @@ async function printContracts(network, bxcInstance, bxcSaleInstance, bxcTeamVest
 	console.log("<< Ready : Contracts >>");
 }
 
+async function printSale(network, bxcInstance, bxcSaleInstance, bxcTeamVestingInstance) {
+	console.log("<< Start : Contracts >>");
+
+	nconf.file({ file: `./config/config-${network}.json` });
+	const admin = nconf.get("admin");
+	const owner = nconf.get("owner");
+	
+	var bxcSaleRounds = [];
+	bxcSaleRounds[0] = await formatRound(await bxcSaleInstance.getRound(0));
+	bxcSaleRounds[1] = await formatRound(await bxcSaleInstance.getRound(1));
+	bxcSaleRounds[2] = await formatRound(await bxcSaleInstance.getRound(2));
+	bxcSaleRounds[3] = await formatRound(await bxcSaleInstance.getRound(3));
+	bxcSaleRounds[4] = await formatRound(await bxcSaleInstance.getRound(4));
+	bxcSaleRounds[5] = await formatRound(await bxcSaleInstance.getRound(5));
+	bxcSaleRounds[6] = await formatRound(await bxcSaleInstance.getRound(6));
+	console.log("S4FE Pre ICO Rounds");
+	console.table(bxcSaleRounds);
+
+	console.log("<< Ready : Contracts >>");
+}
+
+async function formatRound(round) {
+	return {
+		'Start Time': new Date(round[0].mul(1000).toNumber()).toGMTString(),
+		'End Time': new Date(round[1].mul(1000).toNumber()).toGMTString(),
+		'Price' : web3.fromWei(round[3], 'ether') + ' ETH',
+	};
+}
+
 async function getInitialBalances(network, bxcInstance, bxcSaleInstance, bxcTeamVestingInstance) {
 	nconf.file({ file: `./config/config-${network}.json` });
 
@@ -226,4 +257,5 @@ module.exports.deployBXCTeamVesting = deployBXCTeamVesting;
 module.exports.mintTokens = mintTokens;
 module.exports.finishMinting = finishMinting;
 module.exports.printContracts = printContracts;
+module.exports.printSale = printSale;
 module.exports.getInitialBalances = getInitialBalances;
